@@ -1,24 +1,11 @@
-import { MongoClient } from 'mongodb';
+// src/models/books.js
+import { getDb } from '../db/connect.js';
 
-let database;
-
-const connectToDb = async () => {
-  const connectionString = process.env.MONGODB_URI;
-  if (!connectionString) {
-    throw new Error('MONGODB_URI is required.');
-  }
-
-  const client = new MongoClient(connectionString);
-  await client.connect();
-  database = client.db(process.env.MONGODB_DB_NAME || 'practice');
-  return database;
+const getAllBooks = async () => {
+  const db = getDb();
+  const collection = db.collection('books');
+  const books = await collection.find({}).toArray();
+  return books;
 };
 
-const getDb = () => {
-  if (!database) {
-    throw new Error('Database not initialized. Call connectToDb first.');
-  }
-  return database;
-};
-
-export { connectToDb, getDb };
+export { getAllBooks };
