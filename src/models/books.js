@@ -5,4 +5,9 @@ const getAllBooks = async () => {
   return db.collection('books').find({}).toArray();
 };
 
-export { getAllBooks };
+const getBookById = async (bookId) => {
+  const db = getDb();
+  return db.collection('books').findOne({ id: bookId });
+};
+
+export { getAllBooks, getBookById };
