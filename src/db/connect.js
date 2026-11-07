@@ -12,11 +12,16 @@ const connectToDb = async () => {
       throw new Error('MONGODB_URI is not defined');
     }
 
+    const dbName = process.env.MONGODB_DB_NAME || process.env.DB_NAME;
+    if (!dbName) {
+      throw new Error('MONGODB_DB_NAME is not defined');
+    }
+
     const client = new MongoClient(connectionString);
 
     await client.connect();
 
-    db = client.db(process.env.DB_NAME);
+    db = client.db(dbName);
 
     console.log('Connected to MongoDB successfully');
 
