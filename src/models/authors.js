@@ -1,42 +1,55 @@
 import { getDb } from '../db/connect.js';
 
-const collection = () => {
-  return getDb().collection('authors');
-};
-
-const booksCollection = () => {
-  return getDb().collection('books');
-};
-
 const getAllAuthors = async () => {
-  return collection().find({}, { projection: { _id: 0 } }).sort({ id: 1 }).toArray();
+  const db = getDb();
+  const collection = db.collection('authors');
+  const authors = await collection.find({}).sort({ id: 1 }).project({ _id: 0 }).toArray();
+
+  return authors;
 };
 
 const getAuthorById = async (id) => {
-  return collection().findOne({ id }, { projection: { _id: 0 } });
+  const db = getDb();
+  const collection = db.collection('authors');
+  const author = await collection.findOne({ id }, { projection: { _id: 0 } });
+
+  return author;
 };
 
 const createAuthor = async (author) => {
-  await collection().insertOne(author);
-  return getAuthorById(author.id);
+  const db = getDb();
+  const collection = db.collection('authors');
+  await collection.insertOne(author);
+  const createdAuthor = await collection.findOne({ id: author.id }, { projection: { _id: 0 } });
+
+  return createdAuthor;
 };
 
-const updateAuthor = async (id, data) => {
-  const result = await collection().findOneAndUpdate(
+const updateAuthor = async (id, author) => {
+  const db = getDb();
+  const collection = db.collection('authors');
+  const result = await collection.findOneAndUpdate(
     { id },
-    { $set: data },
+    { $set: author },
     { returnDocument: 'after', projection: { _id: 0 } }
   );
+
   return result;
 };
 
 const deleteAuthor = async (id) => {
-  const result = await collection().deleteOne({ id });
+  const db = getDb();
+  const collection = db.collection('authors');
+  const result = await collection.deleteOne({ id });
+
   return result.deletedCount === 1;
 };
 
-const authorHasBooks = async (authorId) => {
-  const book = await booksCollection().findOne({ authorId }, { projection: { _id: 1 } });
+const authorHasBooks = async (id) => {
+  const db = getDb();
+  const collection = db.collection('books');
+  const book = await collection.findOne({ authorId: id }, { projection: { _id: 1 } });
+
   return book !== null;
 };
 

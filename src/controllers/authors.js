@@ -1,132 +1,94 @@
 import {
-  getAllAuthors,
-  getAuthorById,
-  createAuthor,
-  updateAuthor,
-  deleteAuthor,
+  getAllAuthors as getAllAuthorsFromDb,
+  getAuthorById as getAuthorByIdFromDb,
+  createAuthor as createAuthorFromDb,
+  updateAuthor as updateAuthorFromDb,
+  deleteAuthor as deleteAuthorFromDb,
   authorHasBooks,
 } from '../models/authors.js';
 
-const isNonEmptyString = (value) => {
-  return typeof value === 'string' && value.trim().length > 0;
-};
-
-const isValidBirthYear = (value) => {
-  const currentYear = new Date().getFullYear();
-  return Number.isInteger(value) && value >= 1000 && value <= currentYear;
-};
-
-const hasOnlyKeys = (obj, allowedKeys) => {
-  return Object.keys(obj).every((key) => {
-    return allowedKeys.includes(key);
-  });
-};
-
 const getAuthorsHandler = async (req, res) => {
   try {
-    const authors = await getAllAuthors();
+    const authors = await getAllAuthorsFromDb();
     return res.status(200).json(authors);
   } catch (error) {
-    console.error('Failed to retrieve authors:', error.message);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const getAuthorByIdHandler = async (req, res) => {
   try {
-    const author = await getAuthorById(req.params.id);
+    const { id } = req.params;
+    const author = await getAuthorByIdFromDb(id);
+
     if (!author) {
       return res.status(404).json({ message: 'Author not found' });
     }
+
     return res.status(200).json(author);
   } catch (error) {
-    console.error('Failed to retrieve author:', error.message);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const createAuthorHandler = async (req, res) => {
   try {
-    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
-      return res.status(400).json({ message: 'Request body must be a JSON object' });
-    }
-
-    if (!hasOnlyKeys(req.body, ['id', 'name', 'birthYear'])) {
-      return res.status(400).json({ message: 'Unsupported field supplied' });
-    }
-
     const { id, name, birthYear } = req.body;
 
-    if (!isNonEmptyString(id) || !isNonEmptyString(name) || birthYear === undefined) {
-      return res.status(400).json({ message: 'id, name, and birthYear are required' });
+    if (!id || !name || birthYear === undefined) {
+      return res.status(400).json({ message: 'Missing required author fields' });
     }
 
-    if (!isValidBirthYear(birthYear)) {
-      return res.status(400).json({ message: 'birthYear must be an integer from 1000 through the current year' });
-    }
-
-    const existing = await getAuthorById(id);
-    if (existing) {
+    const existingAuthor = await getAuthorByIdFromDb(id);
+    if (existingAuthor) {
       return res.status(409).json({ message: 'Author ID already exists' });
     }
 
-    const author = await createAuthor({ id, name, birthYear });
-    return res.status(201).json(author);
+    const createdAuthor = await createAuthorFromDb({ id, name, birthYear });
+    return res.status(201).json(createdAuthor);
   } catch (error) {
-    console.error('Failed to create author:', error.message);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const updateAuthorHandler = async (req, res) => {
   try {
-    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
-      return res.status(400).json({ message: 'Request body must be a JSON object' });
-    }
-
-    if (!hasOnlyKeys(req.body, ['name', 'birthYear'])) {
-      return res.status(400).json({ message: 'Request body must contain only name and birthYear' });
-    }
-
+    const { id } = req.params;
     const { name, birthYear } = req.body;
 
-    if (!isNonEmptyString(name) || birthYear === undefined) {
-      return res.status(400).json({ message: 'name and birthYear are required' });
+    if (!name || birthYear === undefined) {
+      return res.status(400).json({ message: 'Missing required author fields' });
     }
 
-    if (!isValidBirthYear(birthYear)) {
-      return res.status(400).json({ message: 'birthYear must be an integer from 1000 through the current year' });
-    }
-
-    const existing = await getAuthorById(req.params.id);
-    if (!existing) {
+    const existingAuthor = await getAuthorByIdFromDb(id);
+    if (!existingAuthor) {
       return res.status(404).json({ message: 'Author not found' });
     }
 
-    const updated = await updateAuthor(req.params.id, { name, birthYear });
-    return res.status(200).json(updated);
+    const updatedAuthor = await updateAuthorFromDb(id, { name, birthYear });
+    return res.status(200).json(updatedAuthor);
   } catch (error) {
-    console.error('Failed to update author:', error.message);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 const deleteAuthorHandler = async (req, res) => {
   try {
-    const existing = await getAuthorById(req.params.id);
-    if (!existing) {
+    const { id } = req.params;
+
+    const existingAuthor = await getAuthorByIdFromDb(id);
+    if (!existingAuthor) {
       return res.status(404).json({ message: 'Author not found' });
     }
 
-    const hasBooks = await authorHasBooks(req.params.id);
+    const hasBooks = await authorHasBooks(id);
     if (hasBooks) {
       return res.status(409).json({ message: 'Author cannot be deleted because books still reference this author' });
     }
 
-    await deleteAuthor(req.params.id);
+    await deleteAuthorFromDb(id);
     return res.status(204).send();
   } catch (error) {
-    console.error('Failed to delete author:', error.message);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

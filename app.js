@@ -6,7 +6,7 @@ import swaggerSpec from './src/docs/swagger.js';
 const app = express();
 
 app.use(express.json());
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(router);
 
 app.get('/', (req, res) => {
