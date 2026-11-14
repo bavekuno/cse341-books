@@ -1,0 +1,501 @@
+const swaggerSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'CSE 341 Books API',
+    version: '1.0.0',
+    description: 'API for managing books and authors',
+  },
+  servers: [
+    { url: '/' },
+  ],
+  tags: [
+    { name: 'Books', description: 'Book operations' },
+    { name: 'Authors', description: 'Author operations' },
+  ],
+  components: {
+    schemas: {
+      Book: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'b1' },
+          authorId: { type: 'string', example: 'a1' },
+          title: { type: 'string', example: 'Patterns of Light' },
+          publicationDate: { type: 'string', example: '2021-08-17' },
+        },
+        required: ['id', 'authorId', 'title', 'publicationDate'],
+      },
+      BookCreate: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'b4' },
+          authorId: { type: 'string', example: 'a1' },
+          title: { type: 'string', example: 'Example Book Title' },
+          publicationDate: { type: 'string', example: '2026-01-15' },
+        },
+        required: ['id', 'authorId', 'title', 'publicationDate'],
+      },
+      BookUpdate: {
+        type: 'object',
+        properties: {
+          authorId: { type: 'string', example: 'a2' },
+          title: { type: 'string', example: 'Updated Book Title' },
+          publicationDate: { type: 'string', example: '2026-02-20' },
+        },
+        required: ['authorId', 'title', 'publicationDate'],
+      },
+      Author: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'a1' },
+          name: { type: 'string', example: 'Maya Rivera' },
+          birthYear: { type: 'integer', example: 1985 },
+        },
+        required: ['id', 'name', 'birthYear'],
+      },
+      AuthorCreate: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'a1' },
+          name: { type: 'string', example: 'Maya Rivera' },
+          birthYear: { type: 'integer', example: 1985 },
+        },
+        required: ['id', 'name', 'birthYear'],
+      },
+      AuthorUpdate: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'Maya A. Rivera' },
+          birthYear: { type: 'integer', example: 1986 },
+        },
+        required: ['name', 'birthYear'],
+      },
+      Error: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+        },
+      },
+    },
+  },
+  paths: {
+    '/books': {
+      get: {
+        tags: ['Books'],
+        summary: 'Get all books',
+        description: 'Returns all books ordered by id ascending.',
+        responses: {
+          200: {
+            description: 'Array of book objects',
+            content: {
+              'application/json': {
+                schema: { type: 'array', items: { $ref: '#/components/schemas/Book' } },
+                example: [
+                  { id: 'b1', authorId: 'a1', title: 'Patterns of Light', publicationDate: '2021-08-17' },
+                ],
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['Books'],
+        summary: 'Create a new book',
+        description: 'Creates a book. authorId must match an existing author. id must be unique.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/BookCreate' },
+              example: { id: 'b4', authorId: 'a1', title: 'Example Book Title', publicationDate: '2026-01-15' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Book created',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Book' },
+                example: { id: 'b4', authorId: 'a1', title: 'Example Book Title', publicationDate: '2026-01-15' },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid request, missing/invalid fields, unsupported fields, or authorId not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'authorId does not match an existing author' },
+              },
+            },
+          },
+          409: {
+            description: 'Book ID already exists',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Book ID already exists' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/books/{id}': {
+      get: {
+        tags: ['Books'],
+        summary: 'Get a book by id',
+        description: 'Returns one book by its custom id.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom book id', example: 'b1' },
+        ],
+        responses: {
+          200: {
+            description: 'Book found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Book' },
+                example: { id: 'b1', authorId: 'a1', title: 'Patterns of Light', publicationDate: '2021-08-17' },
+              },
+            },
+          },
+          404: {
+            description: 'Book not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Book not found' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        tags: ['Books'],
+        summary: 'Update a book',
+        description: 'Updates authorId, title, and publicationDate of an existing book. id cannot be changed.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom book id', example: 'b1' },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/BookUpdate' },
+              example: { authorId: 'a2', title: 'Updated Book Title', publicationDate: '2026-02-20' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Book updated',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Book' },
+                example: { id: 'b1', authorId: 'a2', title: 'Updated Book Title', publicationDate: '2026-02-20' },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid request, missing/invalid fields, unsupported fields, or authorId not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'authorId does not match an existing author' },
+              },
+            },
+          },
+          404: {
+            description: 'Book not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Book not found' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['Books'],
+        summary: 'Delete a book',
+        description: 'Deletes a book by its custom id.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom book id', example: 'b1' },
+        ],
+        responses: {
+          204: { description: 'Book deleted' },
+          404: {
+            description: 'Book not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Book not found' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/authors': {
+      get: {
+        tags: ['Authors'],
+        summary: 'Get all authors',
+        description: 'Returns all authors ordered by id ascending.',
+        responses: {
+          200: {
+            description: 'Array of author objects',
+            content: {
+              'application/json': {
+                schema: { type: 'array', items: { $ref: '#/components/schemas/Author' } },
+                example: [
+                  { id: 'a1', name: 'Maya Rivera', birthYear: 1985 },
+                ],
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['Authors'],
+        summary: 'Create a new author',
+        description: 'Creates an author with a unique custom id.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/AuthorCreate' },
+              example: { id: 'a1', name: 'Maya Rivera', birthYear: 1985 },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Author created',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Author' },
+                example: { id: 'a1', name: 'Maya Rivera', birthYear: 1985 },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid request, missing/invalid fields, or unsupported fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'birthYear must be an integer from 1000 through the current year' },
+              },
+            },
+          },
+          409: {
+            description: 'Author ID already exists',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Author ID already exists' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/authors/{id}': {
+      get: {
+        tags: ['Authors'],
+        summary: 'Get an author by id',
+        description: 'Returns one author by their custom id.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom author id', example: 'a1' },
+        ],
+        responses: {
+          200: {
+            description: 'Author found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Author' },
+                example: { id: 'a1', name: 'Maya Rivera', birthYear: 1985 },
+              },
+            },
+          },
+          404: {
+            description: 'Author not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Author not found' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        tags: ['Authors'],
+        summary: 'Update an author',
+        description: 'Updates name and birthYear of an existing author. id cannot be changed.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom author id', example: 'a1' },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/AuthorUpdate' },
+              example: { name: 'Maya A. Rivera', birthYear: 1986 },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Author updated',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Author' },
+                example: { id: 'a1', name: 'Maya A. Rivera', birthYear: 1986 },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid request, missing/invalid fields, or unsupported fields',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'birthYear must be an integer from 1000 through the current year' },
+              },
+            },
+          },
+          404: {
+            description: 'Author not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Author not found' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['Authors'],
+        summary: 'Delete an author',
+        description: 'Deletes an author if no books reference them.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Custom author id', example: 'a1' },
+        ],
+        responses: {
+          204: { description: 'Author deleted' },
+          404: {
+            description: 'Author not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Author not found' },
+              },
+            },
+          },
+          409: {
+            description: 'Author referenced by books',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Author cannot be deleted because books still reference this author' },
+              },
+            },
+          },
+          500: {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+                example: { message: 'Internal server error' },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export default swaggerSpec;
