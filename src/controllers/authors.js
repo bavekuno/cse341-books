@@ -7,7 +7,7 @@ import {
   authorHasBooks,
 } from '../models/authors.js';
 
-const getAuthorsHandler = async (req, res) => {
+const getAllAuthors = async (req, res) => {
   try {
     const authors = await getAllAuthorsFromDb();
     return res.status(200).json(authors);
@@ -16,7 +16,7 @@ const getAuthorsHandler = async (req, res) => {
   }
 };
 
-const getAuthorByIdHandler = async (req, res) => {
+const getAuthorById = async (req, res) => {
   try {
     const { id } = req.params;
     const author = await getAuthorByIdFromDb(id);
@@ -31,8 +31,12 @@ const getAuthorByIdHandler = async (req, res) => {
   }
 };
 
-const createAuthorHandler = async (req, res) => {
+const createAuthor = async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ message: 'Missing required author fields' });
+    }
+
     const { id, name, birthYear } = req.body;
 
     if (!id || !name || birthYear === undefined) {
@@ -51,8 +55,12 @@ const createAuthorHandler = async (req, res) => {
   }
 };
 
-const updateAuthorHandler = async (req, res) => {
+const updateAuthor = async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ message: 'Missing required author fields' });
+    }
+
     const { id } = req.params;
     const { name, birthYear } = req.body;
 
@@ -72,7 +80,7 @@ const updateAuthorHandler = async (req, res) => {
   }
 };
 
-const deleteAuthorHandler = async (req, res) => {
+const deleteAuthor = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -93,10 +101,4 @@ const deleteAuthorHandler = async (req, res) => {
   }
 };
 
-export {
-  getAuthorsHandler,
-  getAuthorByIdHandler,
-  createAuthorHandler,
-  updateAuthorHandler,
-  deleteAuthorHandler,
-};
+export { getAllAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor };

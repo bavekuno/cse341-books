@@ -7,11 +7,11 @@ import {
   deleteBookHandler,
 } from './controllers/books.js';
 import {
-  getAuthorsHandler,
-  getAuthorByIdHandler,
-  createAuthorHandler,
-  updateAuthorHandler,
-  deleteAuthorHandler,
+  getAllAuthors,
+  getAuthorById,
+  createAuthor,
+  updateAuthor,
+  deleteAuthor,
 } from './controllers/authors.js';
 
 const router = express.Router();
@@ -35,37 +35,37 @@ router.delete('/books/:id', deleteBookHandler);
  *       500:
  *         description: Internal server error
  */
-router.get('/authors', getAuthorsHandler);
+router.get('/authors', getAllAuthors);
 
 /**
  * @openapi
  * /authors/{id}:
  *   get:
- *     summary: Get one author by id
+ *     summary: Get author by ID
  *     tags:
  *       - Authors
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The custom author id, such as a1
  *         schema:
  *           type: string
+ *         description: The author ID.
  *     responses:
  *       200:
- *         description: Author returned successfully
+ *         description: A single author
  *       404:
  *         description: Author not found
  *       500:
  *         description: Internal server error
  */
-router.get('/authors/:id', getAuthorByIdHandler);
+router.get('/authors/:id', getAuthorById);
 
 /**
  * @openapi
  * /authors:
  *   post:
- *     summary: Create a new author
+ *     summary: Create an author
  *     tags:
  *       - Authors
  *     requestBody:
@@ -81,39 +81,40 @@ router.get('/authors/:id', getAuthorByIdHandler);
  *             properties:
  *               id:
  *                 type: string
- *                 example: a1
  *               name:
  *                 type: string
- *                 example: Maya Rivera
  *               birthYear:
- *                 type: integer
- *                 example: 1985
+ *                 type: number
+ *           example:
+ *             id: a4
+ *             name: Example Author
+ *             birthYear: 1980
  *     responses:
  *       201:
- *         description: Author created successfully
+ *         description: Author created
  *       400:
- *         description: Invalid or missing fields
+ *         description: Missing required author fields or author ID already exists
  *       409:
  *         description: Author ID already exists
  *       500:
  *         description: Internal server error
  */
-router.post('/authors', createAuthorHandler);
+router.post('/authors', createAuthor);
 
 /**
  * @openapi
  * /authors/{id}:
  *   put:
- *     summary: Update an author
+ *     summary: Update an author by ID
  *     tags:
  *       - Authors
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The custom author id, such as a1
  *         schema:
  *           type: string
+ *         description: The author ID.
  *     requestBody:
  *       required: true
  *       content:
@@ -126,39 +127,40 @@ router.post('/authors', createAuthorHandler);
  *             properties:
  *               name:
  *                 type: string
- *                 example: Maya A. Rivera
  *               birthYear:
- *                 type: integer
- *                 example: 1986
+ *                 type: number
+ *           example:
+ *             name: Updated Author
+ *             birthYear: 1981
  *     responses:
  *       200:
- *         description: Author updated successfully
+ *         description: Author updated
  *       400:
- *         description: Invalid or missing fields
+ *         description: Missing required author fields
  *       404:
  *         description: Author not found
  *       500:
  *         description: Internal server error
  */
-router.put('/authors/:id', updateAuthorHandler);
+router.put('/authors/:id', updateAuthor);
 
 /**
  * @openapi
  * /authors/{id}:
  *   delete:
- *     summary: Delete an author
+ *     summary: Delete an author by ID
  *     tags:
  *       - Authors
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The custom author id, such as a1
  *         schema:
  *           type: string
+ *         description: The author ID.
  *     responses:
  *       204:
- *         description: Author deleted successfully
+ *         description: Author deleted
  *       404:
  *         description: Author not found
  *       409:
@@ -166,6 +168,6 @@ router.put('/authors/:id', updateAuthorHandler);
  *       500:
  *         description: Internal server error
  */
-router.delete('/authors/:id', deleteAuthorHandler);
+router.delete('/authors/:id', deleteAuthor);
 
 export default router;
