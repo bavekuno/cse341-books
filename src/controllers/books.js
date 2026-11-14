@@ -80,7 +80,7 @@ const createBookHandler = async (req, res) => {
 
     const existing = await getBookById(id);
     if (existing) {
-      return res.status(409).json({ message: 'Book ID already exists' });
+      return res.status(400).json({ message: 'Book ID already exists' });
     }
 
     const validAuthor = await authorExists(authorId);

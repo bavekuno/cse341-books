@@ -130,20 +130,11 @@ const swaggerSpec = {
             },
           },
           400: {
-            description: 'Invalid request, missing/invalid fields, unsupported fields, or authorId not found',
+            description: 'Invalid request, missing/invalid fields, unsupported fields, book ID already exists, or authorId not found',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/Error' },
                 example: { message: 'authorId does not match an existing author' },
-              },
-            },
-          },
-          409: {
-            description: 'Book ID already exists',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Error' },
-                example: { message: 'Book ID already exists' },
               },
             },
           },

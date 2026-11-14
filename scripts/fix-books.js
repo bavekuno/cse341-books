@@ -11,10 +11,9 @@ if (!dbName) {
 }
 
 const authors = [
-  { id: 'a1', name: 'J.K. Rowling', birthYear: 1965 },
-  { id: 'a2', name: 'George Orwell', birthYear: 1903 },
-  { id: 'a3', name: 'Chinua Achebe', birthYear: 1930 },
-  { id: 'a4', name: 'William Shakespeare', birthYear: 1564 },
+  { id: 'a1', name: 'Jane Austen', birthYear: 1775 },
+  { id: 'a2', name: 'William Shakespeare', birthYear: 1564 },
+  { id: 'a3', name: 'Charles Dickens', birthYear: 1812 },
 ];
 
 const books = [
@@ -26,7 +25,7 @@ const books = [
   },
   {
     id: 'b2',
-    authorId: 'a2',
+    authorId: 'a3',
     title: 'Animal Farm',
     publicationDate: '1945-08-17',
   },
@@ -38,7 +37,7 @@ const books = [
   },
   {
     id: 'b4',
-    authorId: 'a4',
+    authorId: 'a2',
     title: 'Romeo and Juliet',
     publicationDate: '1597-01-01',
   },
